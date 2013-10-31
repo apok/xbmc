@@ -538,16 +538,12 @@ bool CWinEventsX11Imp::MessagePump()
 
       case EnterNotify:
       {
-        if (xevent.xcrossing.mode ==  NotifyNormal)
-          g_Windowing.NotifyMouseCoverage(true);
         break;
       }
 
       // lose mouse coverage
       case LeaveNotify:
       {
-        if (xevent.xcrossing.mode ==  NotifyNormal)
-          g_Windowing.NotifyMouseCoverage(false);
         g_Mouse.SetActive(false);
         break;
       }
@@ -682,10 +678,6 @@ bool CWinEventsX11Imp::ProcessKey(XBMC_Event &event)
         break;
     }
     event.key.keysym.mod = (XBMCMod)WinEvents->m_keymodState;
-
-    bool ret = ProcessShortcuts(event);
-    if (ret)
-      return ret;
   }
   else if (event.type == XBMC_KEYUP)
   {
@@ -725,23 +717,6 @@ bool CWinEventsX11Imp::ProcessKey(XBMC_Event &event)
   }
 
   return g_application.OnEvent(event);
-}
-
-bool CWinEventsX11Imp::ProcessShortcuts(XBMC_Event& event)
-{
-  if (event.key.keysym.mod & XBMCKMOD_ALT)
-  {
-    switch(event.key.keysym.sym)
-    {
-      case XBMCK_TAB:  // ALT+TAB to minimize/hide
-        g_application.Minimize();
-        return true;
-
-      default:
-        return false;
-    }
-  }
-  return false;
 }
 
 XBMCKey CWinEventsX11Imp::LookupXbmcKeySym(KeySym keysym)
