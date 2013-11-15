@@ -670,8 +670,24 @@ bool CDVDPlayer::OpenInputStream()
     if(maxrate <= 0)
       maxrate = INT_MAX;
 
+    // preserve any ProtocolOptions
+    CURL inputUrl = CURL(m_filename);
+    CStdString inputProtocolOptions = inputUrl.GetProtocolOptions();
+
     // determine the most appropriate stream
     m_filename = PLAYLIST::CPlayListM3U::GetBestBandwidthStream(m_filename, (size_t)maxrate);
+
+    // add back original ProtocolOptions to be opened
+    if (inputProtocolOptions != "")
+    {
+      CURL outputUrl = CURL(m_filename);
+      if (outputUrl.GetProtocolOptions() != "")
+        outputUrl.SetProtocolOptions(";"+inputProtocolOptions);
+      else
+        outputUrl.SetProtocolOptions(inputProtocolOptions);
+      m_filename = outputUrl.Get();
+    }
+
   }
   m_pInputStream = CDVDFactoryInputStream::CreateInputStream(this, m_filename, m_mimetype);
   if(m_pInputStream == NULL)
